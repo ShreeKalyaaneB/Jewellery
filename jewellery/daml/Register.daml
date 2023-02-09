@@ -1,0 +1,48 @@
+module Register where
+
+import Daml.Script
+
+type CusRegistrationId = ContractId CusRegistration
+
+template CusRegistration
+  with
+    jeweller: Party
+    customername : Party
+    address: Text
+    phone : Int
+    pan : Text
+    aadhar :Text
+  
+  where
+    signatory jeweller
+
+
+    choice
+      Verify: CusRegistrationId
+        with
+          name:Party
+       controller jeweller 
+        do create this with
+             customername=name   
+
+setup: Script CusRegistrationId
+setup = script do
+
+   j <- allocateParty "jeweller"
+   c <- allocateParty "revi"
+  
+   verifyCustomer <-  submit j do
+      createCmd CusRegistration with
+           jeweller= j
+           customername = c
+           address= "Chennai"
+           phone = 8976543234
+           pan = "wae23456"
+           aadhar ="5667432289"  
+
+  --  submit j do
+  --      exerciseCmd verifyCustomer Verify 
+  --         with
+  --           name=c
+
+   return(verifyCustomer)  

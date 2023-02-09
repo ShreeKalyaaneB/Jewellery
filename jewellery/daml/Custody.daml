@@ -1,0 +1,29 @@
+module Custody where
+
+
+
+
+type GoldCustodyId = ContractId GoldCustody
+
+
+template GoldCustody
+    
+  with    
+    issuer:Party    
+    owner:Party        
+    weight:Int  
+  where    
+    signatory issuer    
+    observer owner    
+    
+    choice        
+      Give: GoldCustodyId        
+        with            
+          customer:Party            
+          totalweight:Int        
+
+        controller owner 
+           do create this with                    
+                owner=customer                    
+                weight=totalweight
+              

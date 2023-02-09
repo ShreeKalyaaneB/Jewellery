@@ -1,0 +1,44 @@
+module Main where
+
+import Register
+import Payment
+import Custody
+
+import Daml.Script
+
+initialize: Script(GoldCustodyId,PayableId)
+initialize = script do  
+  selva <- allocatePartyWithHint "Selva" (PartyIdHint "Selva")    
+  kumar <- allocatePartyWithHint "Kumar" (PartyIdHint "Kumar")    
+  bank <- allocateParty "bank"
+  jewellery <- allocateParty "jewellery"
+  
+  selvaId <- validateUserId "selva"    
+  kumarId <- validateUserId "kumar"    
+  
+  createUser (User selvaId (Some selva)) [CanActAs selva]    
+  createUser (User kumarId (Some kumar)) [CanActAs kumar]    
+  
+  amountTransfer<- submit bank do
+    createCmd Payable
+      with
+        sender=bank
+        receiver=bank
+        priceAmount=50000.0
+
+  jewellergotMoney<- submit bank do
+     exerciseCmd amountTransfer Pay with jeweller=jewellery,amount=50000.0
+     
+
+  newgold<- submit selva do    
+    createCmd GoldCustody        
+      with            
+        issuer= selva        
+        owner =selva                
+        weight=100  
+        
+  customerhasgold <- submit selva do    
+     exerciseCmd newgold Give with customer=kumar,totalweight=100  
+  
+  
+  return (customerhasgold, jewellergotMoney)

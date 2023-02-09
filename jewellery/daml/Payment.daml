@@ -1,0 +1,42 @@
+module Payment where
+
+import Custody
+
+
+type PayableId = ContractId Payable
+
+
+template Payable
+  with
+    sender:Party
+    receiver:Party
+    priceAmount:Decimal
+
+  where
+    signatory sender
+    observer receiver
+
+    choice
+      Pay: PayableId
+        with
+          jeweller:Party
+          amount:Decimal
+
+        controller sender
+          do create this with
+               receiver = jeweller
+               priceAmount = amount
+
+    -- choice
+    --   Transfer: PayableId
+    --      with
+    --        issuer:Party
+    --        owner:Party
+    --        weight:Int
+    --      controller receiver
+    --         do create this with
+
+
+    --              issuer = receiver
+    --              owner = issuer
+    --              weight = weight
